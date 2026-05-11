@@ -22,7 +22,7 @@ export default function OSMMap() {
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      console.log("📍 Permission:", status);
+      // console.log("📍 Permission:", status);
       if (status !== "granted") return;
       await startTracking();
     })();
@@ -156,7 +156,6 @@ export default function OSMMap() {
     </SafeAreaView>
   );
 }
-
 
 // import React, { useEffect, useRef, useState } from "react";
 // import { StatusBar } from "react-native";
