@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,19 +6,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ActivityIndicator, View } from "react-native";
-import { useAuthInit } from "@features/auth/hooks/useAuthInit";
+import { useAuthInit } from "@/hooks/useAuthInit";
 import * as SplashScreen from "expo-splash-screen";
 import "../global.css";
 import { ToastProvider } from "@/shared/components/Toast/Toast";
 
-// ← Keep native splash visible until we manually hide it
 SplashScreen.preventAutoHideAsync();
-
-// ← Optional: fade animation when hiding =>  only works in development builds
-// SplashScreen.setOptions({
-//   duration: 500,
-//   fade: true,
-// });
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,60 +23,61 @@ const queryClient = new QueryClient({
 });
 
 const ROLE_ROUTES: Record<string, string> = {
-  // admin: "/(admin)/(tabs)/dashboard",
-  // teaching: "/(teaching)/(tabs)/dashboard",
   driver: "/(driver)/(tabs)/dashboard",
   customer: "/(customer)/(tabs)/dashboard",
+  admin: "/(admin)/(tabs)/dashboard",
 };
 
 function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
   const user = useAuthStore((s) => s.user);
-  const [isMounted, setIsMounted] = useState(false);
-  // const { isReady, showOnboarding } = useAuthInit(); // ← bootstrap tokens + user on cold start
-  const { isReady } = useAuthInit(); // ← bootstrap tokens + user on cold start
+  const { isReady } = useAuthInit();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // ── One-shot redirect guard ──────────────────────────────────
+  const didRedirect = useRef(false);
 
-  // ← Hide splash screen once auth bootstrap is complete
+  // ── Hide splash ──────────────────────────────────────────────
   useEffect(() => {
-    if (isReady) {
-      SplashScreen.hideAsync();
-    }
+    if (isReady) SplashScreen.hideAsync();
   }, [isReady]);
 
+  // ── Redirect — fires only when isReady + user settle ────────
   useEffect(() => {
-    if (!isMounted || !isReady) return; // ← wait for both
+    if (!isReady) return;
+    if (didRedirect.current) return; // ← one-shot: never redirect twice
 
-    // console.log("🔵 isMounted:", isMounted);
-    // console.log("🔵 isReady:", isReady);
-    // console.log("🔵 showOnboarding:", showOnboarding);
-    // console.log("🔵 user:", user);
+    const currentSegment = segments[0] as string;
+    const inAuthGroup = currentSegment === "(auth)";
 
-    // if (showOnboarding) {
-    //   router.replace("/onboarding" as any);
-    //   return;
-    // }
+    if (!user) {
+      if (!inAuthGroup) {
+        didRedirect.current = true;
+        router.replace("/(auth)/login" as any);
+      }
+      return;
+    }
 
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (!user && !inAuthGroup) {
-      router.replace("/(auth)/login" as any);
-    } else if (user && inAuthGroup) {
-      const route = ROLE_ROUTES[user.role as string] ?? "/(auth)/login";
+    if (inAuthGroup) {
+      const appRole = (user.role as string)?.toLowerCase?.() ?? "";
+      const route = ROLE_ROUTES[appRole] ?? "/(auth)/login";
+      didRedirect.current = true;
       router.replace(route as any);
     }
-  // }, [user, segments, isMounted, isReady, showOnboarding]);
-  }, [user, segments, isMounted, isReady]);
 
-  // Show splash/loader while bootstrapping
+  }, [isReady, user]); // ← segments excluded intentionally
+
+  // ── Reset redirect guard on logout ──────────────────────────
+  useEffect(() => {
+    if (!user) {
+      didRedirect.current = false;
+    }
+  }, [user]);
+
   if (!isReady) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View className="flex-1 items-center justify-center bg-bg-screen">
+        <ActivityIndicator size="large" color="#1B5E37" />
       </View>
     );
   }

@@ -1,16 +1,17 @@
 import { useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
-import type { UserRole } from "@/types/domain/user.types";
 
 type AppRoute =
     | "/(driver)/(tabs)/dashboard"
     | "/(customer)/(tabs)/dashboard"
+    | "/(admin)/(tabs)/dashboard"
     | "/(auth)/login";
 
-const ROLE_ROUTES: Record<UserRole, AppRoute> = {
+const ROLE_ROUTES: Record<string, AppRoute> = {
     driver: "/(driver)/(tabs)/dashboard",
     customer: "/(customer)/(tabs)/dashboard",
+    admin: "/(admin)/(tabs)/dashboard",
 };
 
 export default function AuthLayout() {
@@ -18,8 +19,11 @@ export default function AuthLayout() {
     const user = useAuthStore((s) => s.user);
 
     useEffect(() => {
-        if (user?.role) {  // ← null check on role
-            const route = ROLE_ROUTES[user.role] ?? "/(auth)/login";
+        if (user?.role) {
+            // user.role is PascalCase from API ("Driver", "Customer", "Admin")
+            // ROLE_ROUTES keys are lowercase — normalize before lookup
+            const appRole = user.role.toLowerCase();
+            const route = ROLE_ROUTES[appRole] ?? "/(auth)/login";
             router.replace(route as any);
         }
     }, [user]);
@@ -29,6 +33,7 @@ export default function AuthLayout() {
             <Stack.Screen name="login" />
             <Stack.Screen name="forgot-password" />
             <Stack.Screen name="otp" />
+            <Stack.Screen name="register" />
         </Stack>
-    )
+    );
 }

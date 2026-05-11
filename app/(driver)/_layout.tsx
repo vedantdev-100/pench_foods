@@ -1,16 +1,17 @@
-import { Slot, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { Redirect } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
+import { Stack } from "expo-router";
 
 export default function DriverLayout() {
   const user = useAuthStore((s) => s.user);
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!user || user.role !== "driver") {
-      router.replace("/(auth)/login" as any);
-    }
-  }, [user]);
+  if (!user?.is_driver) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+    </Stack>
+  );
 }

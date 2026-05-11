@@ -1,4 +1,16 @@
-import type { User, UserRole } from "@/types/domain/user.types";
+import type { User } from "@/types/domain/user.types";
+
+export type { User };
+
+export interface AuthResponse {
+  access: string;
+  refresh: string;
+  user: User;
+  sid: string;
+  city_name: string;
+  domain_name: string;
+  active_route_id: string | null; // ← present if driver has route assigned today
+}
 
 export interface AuthState {
   user: User | null;
@@ -11,23 +23,25 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface LoginResponse {
-  access: string;
-  refresh: string;
-  user: User;
-  sid: string;
-  city_name: string;
-  domain_name: string;
-  route_id: string;
+export interface OTPRequestPayload {
+  phone_number: string;
 }
 
-export interface OTPPayload {
-  phone: string;
+export interface OTPVerifyPayload {
+  phone_number: string;
   otp: string;
 }
 
-export interface ForgotPasswordPayload {
-  email: string;
+export interface RegisterPayload {
+  username: string;
+  password: string;
+  phone_number: string;
+  role: "Customer";
+  tenant_schema: string;
 }
 
-export type { User, UserRole };
+export type LoginMethod = "password" | "otp";
+
+// export interface ForgotPasswordPayload {
+//   email: string;
+// }

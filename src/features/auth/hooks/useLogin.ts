@@ -1,39 +1,55 @@
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import { authApi } from "../api/authApi";
-import type { LoginPayload } from "../types/auth.types";
-import type { UserRole } from "@/types/domain/user.types";
 import { useAuthStore } from "@/store/authStore";
 import { tokenUtils } from "../utils/tokenUtils";
 import { useToast } from "@/hooks/useToast";
 import { getErrorMessage } from "@/errors/errorHandler";
+import { ROUTES } from "@/constants/routes";
+import type { LoginPayload } from "../types/auth.types";
+import type { UserRole } from "@/types/domain/user.types";
 
 export function useLogin() {
+  const router = useRouter();
   const { setUser, setTokens, setDomainAndRoute } = useAuthStore();
   const { show } = useToast();
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: async (res) => {
-      const { user, access, refresh } = res.data;
+      const { user, access, refresh, domain_name, active_route_id } = res;
 
-      console.log("🔐 Full login response:", JSON.stringify(res.data, null, 2));
+      // console.log("access:", access, typeof access);
+      // console.log("refresh:", refresh, typeof refresh);
+      // console.log("domain_name:", domain_name, typeof domain_name);
 
-      // Simple two-role derivation — is_driver true=driver, false=customer
-      const role: UserRole = user.is_driver ? "driver" : "customer";
 
-      await tokenUtils.saveTokens(access, refresh); // save tokein to secureStore
-      setTokens(access, refresh);  // setting tokens in zustand store [GLOBAL]
-      setUser({ ...user, role });
+      // ── 1. Persist tokens ────────────────────────────────────────
+      await tokenUtils.saveTokens(access, refresh);
+      setTokens(access, refresh);
 
-      // ← ADD: check what field names your API uses
-      console.log("🗺️ domain_name:", res.data.domain_name);
-      console.log("🗺️ route_id:", res.data.route_id);
+      // ── 2. Derive app-level role (lowercase) from API flags ──────
+      // Do NOT assign this to user.role — user.role is PascalCase from API
+      const appRole: UserRole = user.is_driver
+        ? "driver"
+        : user.is_customer
+          ? "customer"
+          : "admin";
 
-      /////////////////////// changes /////////////////
-      setDomainAndRoute(
-        res.data.domain_name ?? "",
-        res.data.route_id ?? ""   // ← will be "" since API doesn't return it
-      );
+      // ── 3. Store user AS-IS from API — no role override ──────────
+      setUser(user);
+
+      // ── 4. Store domain + route ──────────────────────────────────
+      setDomainAndRoute(domain_name ?? "", active_route_id ?? null);
+
+      // ── 5. Role-based redirect using derived appRole ─────────────
+      if (appRole === "driver") {
+        router.replace(ROUTES.DRIVER.DASHBOARD);
+      } else if (appRole === "customer") {
+        router.replace(ROUTES.CUSTOMER.DASHBOARD);
+      } else {
+        router.replace(ROUTES.ADMIN.DASHBOARD);
+      }
     },
     onError: (error) => {
       show({

@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/useToast";
 import { isValidEmail } from "@/utils/validators";
 import { useRouter } from "expo-router";
 
-export function ForgotPasswordScreen() {
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [isPending, setIsPending] = useState(false);
   const { show } = useToast();
