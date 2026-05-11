@@ -17,38 +17,28 @@ export function useLogin() {
   return useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: async (res) => {
-      const { user, access, refresh, domain_name, active_route_id } = res;
+      const { user, access, refresh, active_route_id } = res;
 
-      // console.log("access:", access, typeof access);
-      // console.log("refresh:", refresh, typeof refresh);
-      // console.log("domain_name:", domain_name, typeof domain_name);
-
-
-      // ── 1. Persist tokens ────────────────────────────────────────
       await tokenUtils.saveTokens(access, refresh);
       setTokens(access, refresh);
+      setUser(user);
 
-      // ── 2. Derive app-level role (lowercase) from API flags ──────
-      // Do NOT assign this to user.role — user.role is PascalCase from API
-      const appRole: UserRole = user.is_driver
+      // ── Resolve domain from either response shape ──────────────
+      const domain = res.domain_name ?? res.tenant_domain ?? "";
+      setDomainAndRoute(domain, active_route_id ?? null);
+
+      const appRole = user.is_driver
         ? "driver"
         : user.is_customer
           ? "customer"
           : "admin";
 
-      // ── 3. Store user AS-IS from API — no role override ──────────
-      setUser(user);
-
-      // ── 4. Store domain + route ──────────────────────────────────
-      setDomainAndRoute(domain_name ?? "", active_route_id ?? null);
-
-      // ── 5. Role-based redirect using derived appRole ─────────────
       if (appRole === "driver") {
-        router.replace(ROUTES.DRIVER.DASHBOARD);
+        router.replace(ROUTES.DRIVER.DASHBOARD as any);
       } else if (appRole === "customer") {
-        router.replace(ROUTES.CUSTOMER.DASHBOARD);
+        router.replace(ROUTES.CUSTOMER.DASHBOARD as any);
       } else {
-        router.replace(ROUTES.ADMIN.DASHBOARD);
+        router.replace(ROUTES.ADMIN.DASHBOARD as any);
       }
     },
     onError: (error) => {

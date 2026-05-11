@@ -6,10 +6,15 @@ export interface AuthResponse {
   access: string;
   refresh: string;
   user: User;
-  sid: string;
-  city_name: string;
-  domain_name: string;
-  active_route_id: string | null; // ← present if driver has route assigned today
+  // ── OTP login response fields ──────────────────────────────
+  tenant_schema?: string;       // ← replaces sid
+  tenant_name?: string;         // ← replaces city_name
+  tenant_domain?: string;       // ← replaces domain_name
+  // ── Password login response fields ────────────────────────
+  sid?: string;
+  city_name?: string;
+  domain_name?: string;
+  active_route_id?: string | null;
 }
 
 export interface AuthState {
@@ -24,19 +29,25 @@ export interface LoginPayload {
 }
 
 export interface OTPRequestPayload {
-  phone_number: string;
+  phone: string;
+}
+export interface OTPRequestResponse {
+  message: string;
+  otp?: string; // ← present in dev/test, absent in production
 }
 
 export interface OTPVerifyPayload {
-  phone_number: string;
-  otp: string;
+  phone: string;
+  code: string;
 }
 
 export interface RegisterPayload {
   username: string;
   password: string;
-  phone_number: string;
-  role: "Customer";
+  email: string;
+  phone: string;          // ← was phone_number, now phone
+  role: "Customers";      // ← was "Customer", now "Customers"
+  is_customer: true;      // ← new required field, always true for app registration
   tenant_schema: string;
 }
 

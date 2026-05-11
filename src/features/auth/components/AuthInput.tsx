@@ -12,9 +12,9 @@ interface AuthInputProps extends TextInputProps {
 
 export function AuthInput({ rightIcon, ...props }: AuthInputProps) {
     return (
-        <View className="flex-row items-center bg-white rounded-full px-5 h-14 border border-border">
+        <View className="flex-row items-center bg-white rounded-full px-7  h-16 border border-border">
             <TextInput
-                className="flex-1 text-sm text-text-primary"
+                className="flex-1 text-sm text-text-primary py-4"
                 placeholderTextColor="#9E9E9E"
                 style={{ paddingVertical: 0 }} // fixes Android vertical misalignment
                 {...props}

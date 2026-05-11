@@ -1,17 +1,25 @@
+export interface CustomerDashboard {
+  active_subscriptions: number;
+  pending_balance: number;
+  total_orders: number;
+  schema: string;
+}
+
 export interface User {
   id: number;
   username: string;
   email?: string;
   first_name?: string;
   last_name?: string;
+  is_erp_user?: boolean;
   is_driver: boolean;
   is_customer: boolean;
-  is_erp_user?: boolean;
   portal: string;
   phone: string;
   tenant_schema: string;
-  groups?: string[];           // ← e.g. ["Drivers"]
-  role?: "Driver" | "Customer" | "Admin";  // ← from backend
+  groups?: string[];
+  role?: "Driver" | "Customer" | "Admin";
+  customer_dashboard?: CustomerDashboard; // ← new
 }
 
 export type UserRole = "driver" | "customer" | "admin";

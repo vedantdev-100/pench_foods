@@ -24,14 +24,14 @@ export function OTPLoginForm() {
     function handleSendOTP() {
         if (!phone) return;
         requestOTP(
-            { phone_number: phone },
+            { phone },
             { onSuccess: () => setOtpSent(true) }
         );
     }
 
     function handleVerifyOTP() {
         if (!otp) return;
-        verifyOTP({ phone_number: phone, otp });
+        verifyOTP({ phone, code : otp });
     }
 
     return (

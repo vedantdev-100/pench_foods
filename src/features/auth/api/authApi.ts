@@ -5,6 +5,7 @@ import type {
   OTPVerifyPayload,
   RegisterPayload,
   AuthResponse,
+  OTPRequestResponse
 } from "../types/auth.types";
 // import type { ApiResponse } from "@/types/api/responses.types";
 
@@ -12,7 +13,7 @@ export const authApi = {
   login: (payload: LoginPayload): Promise<AuthResponse> =>
     httpClient.post("/api/accounts/login/", payload),
 
-  requestOTP: (payload: OTPRequestPayload): Promise<{ message: string }> =>
+  requestOTP: (payload: OTPRequestPayload): Promise<OTPRequestResponse> =>
     httpClient.post("/api/accounts/request-otp/", payload),
 
   verifyOTP: (payload: OTPVerifyPayload): Promise<AuthResponse> =>

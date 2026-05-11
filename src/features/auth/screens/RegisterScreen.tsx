@@ -13,7 +13,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { AuthInput } from "../components/AuthInput";
 import { useRegister } from "../hooks/useRegister";
 
-// City → tenant_schema map — extend as new cities go live
 const CITY_OPTIONS: { label: string; value: string }[] = [
     { label: "Nagpur", value: "nagpur" },
     { label: "Pune", value: "pune" },
@@ -22,31 +21,40 @@ const CITY_OPTIONS: { label: string; value: string }[] = [
 
 export default function RegisterScreen() {
     const router = useRouter();
+
     const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
     const [city, setCity] = useState(CITY_OPTIONS[0].value);
     const [showPassword, setShowPassword] = useState(false);
     const [showCityPicker, setShowCityPicker] = useState(false);
 
     const { mutate: register, isPending, isError, error } = useRegister();
 
-    const selectedCity = CITY_OPTIONS.find((c) => c.value === city);
+    const isFormValid =
+        username.trim() &&
+        email.trim() &&
+        phone.trim() &&
+        password.trim() &&
+        city;
 
     function handleRegister() {
         register({
-            username,
+            username: username.trim(),
             password,
-            phone_number: phone,
-            role: "Customer",
+            email: email.trim(),
+            phone: phone.trim(),
+            role: "Customers",
+            is_customer: true,
             tenant_schema: city,
         });
     }
 
-    const isFormValid = username && password && phone && city;
+    const selectedCity = CITY_OPTIONS.find((c) => c.value === city);
 
     return (
-        // 🎨 Background color → same token as LoginScreen
+        // 🎨 Background → change "#D6EDE4" or use bg-bg-auth token
         <View className="flex-1" style={{ backgroundColor: "#D6EDE4" }}>
             <KeyboardAvoidingView
                 className="flex-1"
@@ -59,7 +67,7 @@ export default function RegisterScreen() {
                 >
                     <View className="flex-1 items-center px-6 pt-12 pb-8">
 
-                        {/* Back button */}
+                        {/* Back */}
                         <TouchableOpacity
                             onPress={() => router.back()}
                             className="self-start mb-4 flex-row items-center gap-x-1"
@@ -69,7 +77,7 @@ export default function RegisterScreen() {
                             <Text className="text-sm text-text-primary font-medium">Back</Text>
                         </TouchableOpacity>
 
-                        {/* 🖼️ Logo — same asset as LoginScreen */}
+                        {/* 🖼️ Logo — replace with your asset */}
                         <Image
                             source={require("@assets/images/pench-logo.png")}
                             className="w-36 h-28"
@@ -93,12 +101,23 @@ export default function RegisterScreen() {
                                 autoCorrect={false}
                             />
 
+                            {/* Email */}
+                            <AuthInput
+                                placeholder="Email address"
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                            />
+
                             {/* Phone */}
                             <AuthInput
-                                placeholder="Phone number (e.g. 919876543210)"
+                                placeholder="Phone number (e.g. 9100000015)"
                                 value={phone}
                                 onChangeText={setPhone}
                                 keyboardType="phone-pad"
+                                maxLength={13}
                             />
 
                             {/* Password */}
@@ -121,7 +140,7 @@ export default function RegisterScreen() {
                                 }
                             />
 
-                            {/* City Picker */}
+                            {/* City Picker Trigger */}
                             <TouchableOpacity
                                 onPress={() => setShowCityPicker((v) => !v)}
                                 activeOpacity={0.8}
@@ -147,7 +166,7 @@ export default function RegisterScreen() {
                                                 setCity(option.value);
                                                 setShowCityPicker(false);
                                             }}
-                                            className={`px-5 py-3.5 border-b border-border last:border-b-0 ${city === option.value ? "bg-brand-light" : "bg-white"
+                                            className={`px-5 py-3.5 border-b border-border ${city === option.value ? "bg-brand-light" : "bg-white"
                                                 }`}
                                         >
                                             <Text
@@ -163,13 +182,14 @@ export default function RegisterScreen() {
                                 </View>
                             )}
 
+                            {/* Error */}
                             {isError && (
                                 <Text className="text-error text-xs text-center">
                                     {(error as any)?.message ?? "Registration failed. Please try again."}
                                 </Text>
                             )}
 
-                            {/* Submit Button */}
+                            {/* Submit */}
                             <TouchableOpacity
                                 onPress={handleRegister}
                                 disabled={isPending || !isFormValid}
@@ -195,6 +215,7 @@ export default function RegisterScreen() {
                                     </Text>
                                 </TouchableOpacity>
                             </View>
+
                         </View>
 
                         <Text className="text-xs text-text-muted text-center mt-auto pt-8">
