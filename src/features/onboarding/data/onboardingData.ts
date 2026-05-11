@@ -1,27 +1,29 @@
+import { ImageSourcePropType } from "react-native";
+
 // src/features/onboarding/data/onboardingData.ts
 export interface OnboardingSlide {
   id: string;
   title: string;
   description: string;
-  emoji: string;
+  image: ImageSourcePropType;
   bgColor: string;
 }
 
 export const onboardingSlides: OnboardingSlide[] = [
   {
     id: "1",
-    emoji: "🥛",
+    image: require("@assets/images/onboarding_1.png"),
     title: "Fresh Milk Daily",
     description:
-      "Get farm-fresh milk delivered to your doorstep every morning. Never run out again!",
-    bgColor: "#EFF6FF",
+      "Start every morning with pure A2 Gir cow milk farm-fresh, naturally rich, and delivered straight from our dairy to your family",
+    bgColor: "#E8F5EE",
   },
   {
     id: "2",
-    emoji: "🚚",
-    title: "Track Your Delivery",
+    image: require("@assets/images/onboarding_2.png"),
+    title: "At your Door step",
     description:
-      "Know exactly when your milk arrives. Track your delivery agent live on the map.",
-    bgColor: "#F0FDF4",
+      "No more trips to the store. Subscribe once and get your milk delivered on time, every day — track your delivery live as it arrives.",
+    bgColor: "#E8F5EE",
   },
 ];

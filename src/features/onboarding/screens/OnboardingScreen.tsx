@@ -8,28 +8,62 @@ import {
     NativeScrollEvent,
     NativeSyntheticEvent,
     ActivityIndicator,
+    Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { onboardingSlides, OnboardingSlide } from "../data/onboardingData";
 import { onboardingUtils } from "../utils/onboardingUtils";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-function OnboardingSlideItem({ item }: { item: OnboardingSlide }) {
+type SlideSize = "sm" | "md" | "lg";
+
+const IMAGE_SIZE: Record<SlideSize, string> = {
+    sm: "w-48 h-48",
+    md: "w-64 h-64",
+    lg: "w-90 h-90",
+};
+
+const CONTAINER_SIZE: Record<SlideSize, string> = {
+    sm: "w-56 h-56",
+    md: "w-72 h-72",
+    lg: "w-90 h-90",
+};
+
+function OnboardingSlideItem({
+    item,
+    size ="lg"
+}: {
+    item: OnboardingSlide;
+    size?: SlideSize;
+}) {
     return (
-        <View style={{ width }} className="flex-1 items-center justify-center px-8">
-            <View
-                className="w-40 h-40 rounded-full items-center justify-center mb-10"
-                style={{ backgroundColor: item.bgColor }}
-            >
-                <Text style={{ fontSize: 72 }}>{item.emoji}</Text>
+        <View style={{ width, height }} className="items-center justify-center">
+
+            {/* ── Image ─────────────────────────────────────────────── */}
+            <View className="items-center justify-center mb-8 h-[55%]">
+                <View
+                    className={`${CONTAINER_SIZE[size]} items-center justify-center overflow-hidden`}
+                    style={{ backgroundColor: item.bgColor }}
+                >
+                    <Image
+                        source={item.image}
+                        className={IMAGE_SIZE[size]}
+                        resizeMode="contain"
+                    />
+                </View>
             </View>
-            <Text className="text-3xl font-bold text-gray-900 text-center mb-4">
-                {item.title}
-            </Text>
-            <Text className="text-base text-gray-500 text-center leading-6">
-                {item.description}
-            </Text>
+
+            {/* ── Text ──────────────────────────────────────────────── */}
+            <View className="items-center px-8">
+                <Text className="text-3xl font-bold text-text-primary text-center mb-3">
+                    {item.title}
+                </Text>
+                <Text className="text-base text-text-secondary text-center leading-6">
+                    {item.description}
+                </Text>
+            </View>
+
         </View>
     );
 }
@@ -66,26 +100,30 @@ export default function OnboardingScreen() {
             console.log("❌ SecureStore error:", e);
         } finally {
             setLoading(false);
-            router.replace("/(auth)/login" as any); // ✅ always navigates
+            router.replace("/(auth)/login" as any);
         }
     };
 
     return (
-        <View className="flex-1 bg-white">
-            {/* Skip */}
+        <View className="flex-1 bg-brand-light">
+
+            {/* ── Skip button ───────────────────────────────────────── */}
             <TouchableOpacity
                 onPress={handleGetStarted}
                 disabled={loading}
                 className="absolute top-14 right-6 z-10"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-                <Text className="text-blue-500 font-semibold text-base">Skip</Text>
+                <Text className="text-brand-primary font-semibold text-base">
+                    Skip
+                </Text>
             </TouchableOpacity>
 
-            {/* Slides */}
+            {/* ── Slides ────────────────────────────────────────────── */}
             <FlatList
                 ref={flatListRef}
                 data={onboardingSlides}
-                renderItem={({ item }) => <OnboardingSlideItem item={item} />}
+                renderItem={({ item }) => <OnboardingSlideItem item={item}  size={item === 0 ? "md" : "lg"} />}
                 keyExtractor={(item) => item.id}
                 horizontal
                 pagingEnabled
@@ -95,33 +133,38 @@ export default function OnboardingScreen() {
                 bounces={false}
             />
 
-            {/* Bottom Controls */}
-            <View className="pb-12 px-8 items-center gap-6">
+            {/* ── Bottom Controls ───────────────────────────────────── */}
+            <View className="pb-12 px-8 items-center gap-y-6">
+
                 {/* Dots */}
-                <View className="flex-row gap-2">
+                <View className="flex-row items-center gap-x-2">
                     {onboardingSlides.map((_, i) => (
                         <View
                             key={i}
-                            className={`h-2 rounded-full ${i === currentIndex ? "w-6 bg-blue-500" : "w-2 bg-gray-300"
+                            className={`h-2 rounded-full transition-all ${i === currentIndex
+                                ? "w-6 bg-brand-primary"
+                                : "w-2 bg-border"
                                 }`}
                         />
                     ))}
                 </View>
 
-                {/* Button */}
+                {/* Next / Get Started button */}
                 <TouchableOpacity
                     onPress={handleNext}
                     disabled={loading}
-                    className="w-full bg-blue-500 py-4 rounded-2xl items-center"
+                    activeOpacity={0.85}
+                    className="w-full bg-brand-primary py-4 rounded-2xl items-center"
                 >
                     {loading ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
                         <Text className="text-white font-bold text-lg">
-                            {isLastSlide ? "Get Started 🚀" : "Next →"}
+                            {isLastSlide ? "Get Started" : "Next →"}
                         </Text>
                     )}
                 </TouchableOpacity>
+
             </View>
         </View>
     );
