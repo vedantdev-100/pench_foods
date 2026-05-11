@@ -24,6 +24,7 @@ module.exports = {
           screen: "#F0EBE1",      // warm cream — full screen background
           card: "#FFFFFF",        // white card
           input: "#F5F5F5",       // input field background
+          auth:   "#E2F3ED",  
         },
 
         // ── Text

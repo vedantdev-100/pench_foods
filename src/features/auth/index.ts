@@ -1,5 +1,5 @@
 // Screens
-export { LoginScreen } from "./screens/LoginScreen";
+export { default as LoginScreen } from "./screens/LoginScreen";
 export { OTPScreen } from "./screens/OTPScreen";
 export { ForgotPasswordScreen } from "./screens/ForgotPasswordScreen";
 
