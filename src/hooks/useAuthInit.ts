@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { tokenUtils } from "@/features/auth/utils/tokenUtils";
-import { httpClient } from "@/services/api/httpClient";
+import { httpClient } from "@/services/api/httpClient"; // ← keep as is
+import type { User } from "@/types/domain/user.types";
 
 export function useAuthInit() {
   const { setTokens, setUser, setDomainAndRoute } = useAuthStore();
@@ -20,12 +21,15 @@ export function useAuthInit() {
         if (access && refresh) {
           setTokens(access, refresh);
 
-          // ── Restore user from token so _layout doesn't flash login
           try {
-            const user = await httpClient.get("/api/accounts/me/");  
-            setUser(user as any);
+            // ── cast to unknown first, then User — safe because
+            //    response interceptor already unwraps .data
+            const me = await httpClient.get("/api/accounts/me/") as unknown as User;
+
+            setUser(me);
+            setDomainAndRoute(me.tenant_schema, me.tenant_schema);
+
           } catch {
-            // Token expired or invalid — clear and go to login
             await tokenUtils.clearTokens();
           }
         }
@@ -40,4 +44,4 @@ export function useAuthInit() {
   }, []);
 
   return { isReady };
-}
+} 

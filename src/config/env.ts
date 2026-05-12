@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   EXPO_PUBLIC_API_BASE_URL: z.string().url(),
-  EXPO_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
+  // EXPO_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
   EXPO_PUBLIC_ENV: z.enum(["development", "staging", "production"]),
 });
 

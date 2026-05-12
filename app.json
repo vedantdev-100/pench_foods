@@ -32,7 +32,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.vedant.ace.mds"
     },
     "web": {
       "bundler": "metro",
@@ -65,6 +66,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cbea7967-f80c-4250-bd0b-ce71bfa9b1e6"
+      }
     }
   }
 }

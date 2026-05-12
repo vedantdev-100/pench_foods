@@ -1,5 +1,6 @@
 import axios from "axios";
 import { env } from "@/config/env";
+import { useAuthStore } from "@/store/authStore"; // ← line 1: new import
 
 export const httpClient = axios.create({
   baseURL: env.EXPO_PUBLIC_API_BASE_URL,
@@ -13,7 +14,11 @@ export const httpClient = axios.create({
 // Attach access token to every request automatically
 httpClient.interceptors.request.use(
   (config) => {
-    // Token is injected here if needed (or handled per-request)
+    // ── Read token directly from Zustand store (outside React) ─
+    const token = useAuthStore.getState().accessToken; // ← add this
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`; // ← add this
+    }
     return config;
   },
   (error) => Promise.reject(error)
