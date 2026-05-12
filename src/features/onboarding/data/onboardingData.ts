@@ -13,9 +13,9 @@ export const onboardingSlides: OnboardingSlide[] = [
   {
     id: "1",
     image: require("@assets/images/onboarding_1.png"),
-    title: "Fresh Milk Daily",
+    title: "Fresh Pure & Trusted",
     description:
-      "Start every morning with pure A2 Gir cow milk farm-fresh, naturally rich, and delivered straight from our dairy to your family",
+      "Farm-fresh milk packed in clean glass bottles, delivered by verified delivery partners. Quality you can taste, every single morning.",
     bgColor: "#E8F5EE",
   },
   {
@@ -24,6 +24,14 @@ export const onboardingSlides: OnboardingSlide[] = [
     title: "At your Door step",
     description:
       "No more trips to the store. Subscribe once and get your milk delivered on time, every day — track your delivery live as it arrives.",
+    bgColor: "#E8F5EE",
+  },
+  {
+    id: "3",
+    image: require("@assets/images/onboarding_2.png"),
+    title: "You're in Control",
+    description:
+      "Pause deliveries, request extra bottles, or plan a vacation — all from your phone. Your milk schedule, your way.",
     bgColor: "#E8F5EE",
   },
 ];

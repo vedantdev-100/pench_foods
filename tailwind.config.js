@@ -16,15 +16,15 @@ module.exports = {
         brand: {
           primary: "#1B5E37",     // dark green — Log In button, accents
           secondary: "#2E7D52",   // medium green
-          light: "#E8F5EE",       // light green bg tint
+          light: "#eaf6ef",       // light green bg tint
         },
 
         // ── Background
         bg: {
           screen: "#F0EBE1",      // warm cream — full screen background
           card: "#FFFFFF",        // white card
-          input: "#F5F5F5",       // input field background
-          auth:   "#E2F3ED",  
+          input: "#f9f9f9",       // input field background
+          auth:   "#f3f3f3",  
         },
 
         // ── Text
@@ -38,8 +38,8 @@ module.exports = {
 
         // ── Input / Border
         border: {
-          DEFAULT: "#E0E0E0",     // input border
-          focus: "#1B5E37",       // focused border
+          disable: "#ececec",     // input border
+          focus: "#1B5E37",                 // focused border
         },
 
         // ── Status

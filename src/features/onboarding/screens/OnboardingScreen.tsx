@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     View,
     Text,
@@ -9,6 +9,7 @@ import {
     NativeSyntheticEvent,
     ActivityIndicator,
     Image,
+    Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { onboardingSlides, OnboardingSlide } from "../data/onboardingData";
@@ -30,9 +31,43 @@ const CONTAINER_SIZE: Record<SlideSize, string> = {
     lg: "w-90 h-90",
 };
 
+function AnimatedDot({ isActive }: { isActive: boolean }) {
+    const width = useRef(new Animated.Value(isActive ? 24: 8)).current;
+    const opacity = useRef(new Animated.Value(isActive ? 1 : 0.4)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.spring(width, {
+                toValue: isActive ? 24 : 8,   // ← w-6 = 24, w-2 = 8
+                useNativeDriver: false,        // width can't use native driver
+                damping: 18,
+                stiffness: 200,
+                mass: 0.8,
+            }),
+            Animated.timing(opacity, {
+                toValue: isActive ? 1 : 0.4,
+                duration: 200,
+                useNativeDriver: false,
+            }),
+        ]).start();
+    }, [isActive]);
+
+    return (
+        <Animated.View
+            className="rounded-full mx-1.5 h-2.5"
+            style={{
+                width,
+                opacity,
+                borderRadius: 4,
+                backgroundColor: isActive ? "#1B5E37" : "#9c9c9c",
+            }}
+        />
+    );
+}
+
 function OnboardingSlideItem({
     item,
-    size ="lg"
+    size = "lg"
 }: {
     item: OnboardingSlide;
     size?: SlideSize;
@@ -123,7 +158,7 @@ export default function OnboardingScreen() {
             <FlatList
                 ref={flatListRef}
                 data={onboardingSlides}
-                renderItem={({ item }) => <OnboardingSlideItem item={item}  size={item === 0 ? "md" : "lg"} />}
+                renderItem={({ item }) => <OnboardingSlideItem item={item} size={item === 0 ? "md" : "lg"} />}
                 keyExtractor={(item) => item.id}
                 horizontal
                 pagingEnabled
@@ -136,16 +171,10 @@ export default function OnboardingScreen() {
             {/* ── Bottom Controls ───────────────────────────────────── */}
             <View className="pb-12 px-8 items-center gap-y-6">
 
-                {/* Dots */}
-                <View className="flex-row items-center gap-x-2">
+                {/* Animated Dots */}
+                <View className="flex-row items-center justify-center">
                     {onboardingSlides.map((_, i) => (
-                        <View
-                            key={i}
-                            className={`h-2 rounded-full transition-all ${i === currentIndex
-                                ? "w-6 bg-brand-primary"
-                                : "w-2 bg-border"
-                                }`}
-                        />
+                        <AnimatedDot key={i} isActive={i === currentIndex} />
                     ))}
                 </View>
 

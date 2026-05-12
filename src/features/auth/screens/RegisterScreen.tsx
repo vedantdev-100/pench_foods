@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
     View,
     Text,
@@ -7,6 +7,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    Animated
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,6 +31,8 @@ export default function RegisterScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const [showCityPicker, setShowCityPicker] = useState(false);
 
+    const dropdownAnim = useRef(new Animated.Value(0)).current;
+
     const { mutate: register, isPending, isError, error } = useRegister();
 
     const isFormValid =
@@ -51,11 +54,25 @@ export default function RegisterScreen() {
         });
     }
 
+    function toggleCityPicker() {
+        const toValue = showCityPicker ? 0 : 1;
+        setShowCityPicker((v) => !v);
+        Animated.spring(dropdownAnim, {
+            toValue,
+            useNativeDriver: false,
+            damping: 18,
+            stiffness: 200,
+            mass: 0.8,
+        }).start();
+    }
+
     const selectedCity = CITY_OPTIONS.find((c) => c.value === city);
 
     return (
-        // 🎨 Background → change "#D6EDE4" or use bg-bg-auth token
-        <View className="flex-1" style={{ backgroundColor: "#D6EDE4" }}>
+        <View
+            className="flex-1 bg-bg-input"
+        // style={{ backgroundColor: "#D6EDE4" }}
+        >
             <KeyboardAvoidingView
                 className="flex-1"
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -142,31 +159,48 @@ export default function RegisterScreen() {
 
                             {/* City Picker Trigger */}
                             <TouchableOpacity
-                                onPress={() => setShowCityPicker((v) => !v)}
+                                onPress={toggleCityPicker}   // ← use toggleCityPicker instead of inline
                                 activeOpacity={0.8}
-                                className="flex-row items-center justify-between bg-white rounded-full px-5 h-14 border border-border"
+                                className="flex-row items-center justify-between bg-border-disable rounded-full px-5 h-14"
                             >
                                 <Text className="text-sm text-text-primary">
                                     {selectedCity?.label ?? "Select your city"}
                                 </Text>
-                                <Ionicons
-                                    name={showCityPicker ? "chevron-up" : "chevron-down"}
-                                    size={18}
-                                    color="#9E9E9E"
-                                />
+                                <Animated.View
+                                    style={{
+                                        transform: [{
+                                            rotate: dropdownAnim.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: ["0deg", "180deg"],  // ← chevron flips on open
+                                            }),
+                                        }],
+                                    }}
+                                >
+                                    <Ionicons name="chevron-down" size={18} color="#9E9E9E" />
+                                </Animated.View>
                             </TouchableOpacity>
 
-                            {/* City Dropdown */}
-                            {showCityPicker && (
-                                <View className="bg-white rounded-2xl border border-border overflow-hidden -mt-2">
+                            {/* City Dropdown — Animated */}
+                            <Animated.View
+                                style={{
+                                    maxHeight: dropdownAnim.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [0, CITY_OPTIONS.length * 52],  // 52px per option
+                                    }),
+                                    opacity: dropdownAnim,
+                                    overflow: "hidden",
+                                }}
+                                className="-mt-2"
+                            >
+                                <View className="bg-white rounded-2xl border border-text-muted overflow-hidden">
                                     {CITY_OPTIONS.map((option) => (
                                         <TouchableOpacity
                                             key={option.value}
                                             onPress={() => {
                                                 setCity(option.value);
-                                                setShowCityPicker(false);
+                                                toggleCityPicker();   // ← close with animation
                                             }}
-                                            className={`px-5 py-3.5 border-b border-border ${city === option.value ? "bg-brand-light" : "bg-white"
+                                            className={`px-5 py-3.5 ${city === option.value ? "bg-brand-light" : "bg-white"
                                                 }`}
                                         >
                                             <Text
@@ -180,8 +214,7 @@ export default function RegisterScreen() {
                                         </TouchableOpacity>
                                     ))}
                                 </View>
-                            )}
-
+                            </Animated.View>
                             {/* Error */}
                             {isError && (
                                 <Text className="text-error text-xs text-center">
@@ -195,8 +228,8 @@ export default function RegisterScreen() {
                                 disabled={isPending || !isFormValid}
                                 activeOpacity={0.85}
                                 className={`w-full h-14 rounded-full items-center justify-center mt-2 ${isPending || !isFormValid
-                                        ? "bg-brand-primary/50"
-                                        : "bg-brand-primary"
+                                    ? "bg-brand-primary/50"
+                                    : "bg-brand-primary"
                                     }`}
                             >
                                 <Text className="text-white text-base font-semibold tracking-wide">

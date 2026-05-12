@@ -18,48 +18,51 @@ export default function LoginScreen() {
 
   return (
     // 🎨 Background color → change "#D6EDE4" or add bg-bg-auth token
-    <SafeAreaView className="flex-1 h-full" style={{ backgroundColor: "#D6EDE4" }}>
-        <KeyboardAvoidingView
-          className="flex-1"
-          behavior={Platform.OS === "ios" ? "padding" : "height"} 
+    <SafeAreaView
+      className="flex-1 h-full bg-bg-input"
+      // style={{ backgroundColor: "#D6EDE4" }}
+      >
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerClassName="flex-grow"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView
-            contentContainerClassName="flex-grow"
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <View className="flex-1 items-center px-6 pt-16 pb-8">
+          <View className="flex-1 items-center px-6 pt-16 pb-8">
 
-              {/* 🖼️ Logo — replace require() path with your asset */}
-              <Image
-                source={require("@assets/images/pench-logo.png")}
-                className="w-48 h-36"
-                resizeMode="contain"
-                accessibilityLabel="Pench Foods logo"
-              />
+            {/* 🖼️ Logo — replace require() path with your asset */}
+            <Image
+              source={require("@assets/images/pench-logo.png")}
+              className="w-48 h-36"
+              resizeMode="contain"
+              accessibilityLabel="Pench Foods logo"
+            />
 
-              {/* Title */}
-              <Text className="text-2xl font-bold text-text-primary mt-6 mb-8">
-                Welcome to Purity
-              </Text>
+            {/* Title */}
+            <Text className="text-2xl font-bold text-text-primary mt-6 mb-8">
+              Welcome to Purity
+            </Text>
 
-              {/* Tab Switcher */}
-              <LoginTabBar active={method} onChange={setMethod} />
+            {/* Tab Switcher */}
+            <LoginTabBar active={method} onChange={setMethod} />
 
-              {/* Form — swaps based on active tab */}
-              {method === "password" ? (
-                <UsernameLoginForm />
-              ) : (
-                <OTPLoginForm />
-              )}
+            {/* Form — swaps based on active tab */}
+            {method === "password" ? (
+              <UsernameLoginForm />
+            ) : (
+              <OTPLoginForm />
+            )}
 
-              {/* Copyright */}
-              <Text className="text-xs text-text-muted text-center mt-auto pt-10">
-                © 2024 Pench Foods. All rights reserved.
-              </Text>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            {/* Copyright */}
+            <Text className="text-xs text-text-muted text-center mt-auto pt-10">
+              © 2024 Pench Foods. All rights reserved.
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

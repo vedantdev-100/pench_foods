@@ -45,10 +45,13 @@ function RootNavigator() {
   // ── Redirect — fires only when isReady + user settle ────────
   useEffect(() => {
     if (!isReady) return;
-    if (didRedirect.current) return; // ← one-shot: never redirect twice
+    if (didRedirect.current) return;
 
     const currentSegment = segments[0] as string;
     const inAuthGroup = currentSegment === "(auth)";
+
+    // ── Don't redirect while index.tsx is still deciding ────────
+    if (currentSegment === undefined || currentSegment === null) return;
 
     if (!user) {
       if (!inAuthGroup) {
@@ -64,7 +67,6 @@ function RootNavigator() {
       didRedirect.current = true;
       router.replace(route as any);
     }
-
   }, [isReady, user]); // ← segments excluded intentionally
 
   // ── Reset redirect guard on logout ──────────────────────────

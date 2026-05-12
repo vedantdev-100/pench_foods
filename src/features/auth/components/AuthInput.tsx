@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     View,
     TextInput,
     TextInputProps,
-    TouchableOpacity,
 } from "react-native";
 
 interface AuthInputProps extends TextInputProps {
@@ -11,11 +10,19 @@ interface AuthInputProps extends TextInputProps {
 }
 
 export function AuthInput({ rightIcon, ...props }: AuthInputProps) {
+    const [focused, setFocused] = useState(false);
+
     return (
-        <View className="flex-row items-center bg-white rounded-full px-7  h-16 border border-border">
+        <View
+            className={`flex-row items-center bg-border-disable rounded-full px-6  h-16 border ${focused ? "border-border-focus" : "border-border-disable"}`}
+            style={{ borderWidth: focused ? 1.5 : 1 }}
+        >
             <TextInput
-                className="flex-1 text-sm text-text-primary py-4"
+                className={`flex-1 text-sm text-text-primary py-4 font-bold `}
+
                 placeholderTextColor="#9E9E9E"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 style={{ paddingVertical: 0 }} // fixes Android vertical misalignment
                 {...props}
             />
